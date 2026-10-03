@@ -1,0 +1,1 @@
+export const metadata={title:"Primavera Fix",description:"Segnala problemi negli spazi della Sapienza"};export default function Layout({children}:{children:React.ReactNode}){return <html lang="it"><body>{children}</body></html>;}

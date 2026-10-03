@@ -1,0 +1,1 @@
+import {authenticated,json} from "@/lib/admin-auth";export async function GET(request:Request){return await authenticated(request)?json({admin:true}):json({error:"Accesso riservato."},401);}
