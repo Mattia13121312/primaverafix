@@ -1,0 +1,46 @@
+name: Pubblica Primavera Fix su GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Scarica il repository
+        uses: actions/checkout@v6
+      - name: Configura Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Configura GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Prepara il sito statico
+        run: node scripts/prepare-pages.mjs
+      - name: Carica il sito
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: .pages
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Pubblica
+        id: deployment
+        uses: actions/deploy-pages@v4
