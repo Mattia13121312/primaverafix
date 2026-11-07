@@ -3,16 +3,31 @@
   "name": "primaverafix",
   "main": "worker/index.ts",
   "compatibility_date": "2026-05-15",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
   "workers_dev": true,
   "assets": {
-    "directory": "./public",
+    "directory": "./.worker-assets",
     "binding": "ASSETS",
-    "run_worker_first": ["/admin", "/admin/*", "/api/*"]
+    "run_worker_first": [
+      "/admin",
+      "/admin.html",
+      "/admin/*",
+      "/api/*"
+    ]
   },
-  "d1_databases": [{
-    "binding": "DB",
-    "database_name": "primaverafix-db",
-    "migrations_dir": "drizzle"
-  }]
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "primaverafix-db",
+      "migrations_dir": "drizzle",
+      "database_id": "4f80386e-ea95-45ae-acb2-2a41bb416b0f"
+    }
+  ],
+  "build": {
+    "command": "node scripts/prepare-worker.mjs"
+  },
+  "account_id": "41afe307796e69fc9ff3b8c6225ee837",
+  "preview_urls": false
 }

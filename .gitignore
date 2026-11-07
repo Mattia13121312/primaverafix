@@ -49,3 +49,7 @@ next-env.d.ts
 .dev.vars*
 
 !.env.example
+
+/.worker-assets/
+/worker/generated/
+/tests/.artifacts/

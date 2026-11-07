@@ -1,0 +1,6 @@
+{
+ "extends":"./tsconfig.json",
+ "compilerOptions":{"target":"ES2022","incremental":false},
+ "include":["worker/**/*.ts","lib/admin-auth.ts","app/api/admin/login/route.ts","app/api/admin/logout/route.ts","app/api/admin/session/route.ts"],
+ "exclude":["node_modules"]
+}

@@ -1,15 +1,12 @@
 # Primavera Fix
 
-Portale per le segnalazioni degli spazi Sapienza. Interfaccia scura, mappa delle sedi, elenco segnalazioni e accesso ADMIN.
+Portale di UDU–Primavera Sapienza per le segnalazioni degli spazi universitari.
 
-## Stato
+- Sito: https://primaverafix.primavera-sapienza.workers.dev
+- Admin: https://primaverafix.primavera-sapienza.workers.dev/admin
 
-Il progetto parte senza segnalazioni e con statistiche azzerate. Non contiene dati dimostrativi. Il pannello ADMIN gestisce stato e rimozione delle segnalazioni disponibili; l’invio pubblico di nuove segnalazioni e allegati non è ancora attivo.
+Invio, moderazione, allegati, aggiornamento degli stati, voti e statistiche usano Cloudflare Workers e D1. I contatti facoltativi sono riservati all'admin. Gli invii diventano pubblici solo dopo l'approvazione.
 
-## Avvio
+Gli allegati usano D1, senza R2: massimo 3 file da 2 MiB e 150 MiB complessivi. Foto e brevi video sono supportati nei formati indicati nel modulo. I limiti del piano gratuito restano applicabili.
 
-Node.js e npm: `npm install`, `npm run build`, `npm run dev`. Il runtime utilizza Cloudflare Workers e D1. Applicare le migrazioni in `drizzle/` al database associato.
-
-## Configurazione
-
-Configurare le variabili elencate in `.env.example` nel servizio di hosting. Le credenziali ADMIN non sono incluse nel repository: la password si verifica tramite hash PBKDF2 con salt. Non caricare `.dev.vars`, file `.env`, token, database locali o `node_modules`.
+Per configurazione, sviluppo, test e pubblicazione leggere [HOSTING.md](HOSTING.md). Nessuna password, token o configurazione locale privata deve essere commessa nel repository.

@@ -1,6 +1,7 @@
 const byId=id=>document.getElementById(id);
 const form=byId('report-form'),building=byId('building'),viewport=byId('map-viewport');
-let files=[];
+for(const option of byId('role').options)option.value=option.value;
+let files=[];let submissionKey=crypto.randomUUID();
 const siteSelect=byId('campus-site');
 function fillBuildings(site){building.replaceChildren(new Option('Scegli dalla mappa o dall’elenco',''));for(const [kind,label]of [['building','Edifici'],['lawn','Pratini'],['fountain','Fontanelle']]){const items=buildings.filter(b=>b.site===site&&(b.kind||'building')===kind);if(!items.length)continue;const group=document.createElement('optgroup');group.label=label;for(const item of items)group.append(new Option((item.label===item.code?item.code+' · ':'')+item.name,item.code));building.append(group);}}
 
@@ -15,7 +16,7 @@ byId('new-report').onclick=()=>{building.focus();building.scrollIntoView({block:
 byId('description').oninput=()=>byId('description-count').textContent=byId('description').value.length+' / 2.500 caratteri';
 function mediaPreview(item){const node=document.createElement(item.file.type.startsWith('video/')?'video':'img');node.src=item.url;if(node.tagName==='VIDEO'){node.controls=true;node.preload='metadata';}else node.alt='Anteprima '+item.file.name;return node;}
 function renderFiles(){const list=byId('file-list');list.replaceChildren();files.forEach((item,index)=>{const row=document.createElement('div');row.className='file-row';const name=document.createElement('span');name.className='file-name';name.textContent=item.file.name;const size=document.createElement('small');size.textContent=(item.file.size/1024/1024).toFixed(1)+' MB';name.append(size);const remove=document.createElement('button');remove.type='button';remove.className='remove-file';remove.textContent='×';remove.setAttribute('aria-label','Rimuovi '+item.file.name);remove.onclick=()=>{URL.revokeObjectURL(item.url);files.splice(index,1);renderFiles();byId('attachment-error').textContent='';};row.append(mediaPreview(item),name,remove);list.append(row);});}
-function addFiles(incoming){const errors=[];for(const file of incoming){if(files.length>=3){errors.push('Puoi allegare al massimo 3 file.');break;}if(!/^(image|video)\//.test(file.type)){errors.push(file.name+': scegli una foto o un video.');continue;}if(file.size>20*1024*1024){errors.push(file.name+': il limite è 20 MB per file.');continue;}if(files.some(x=>x.file.name===file.name&&x.file.size===file.size&&x.file.lastModified===file.lastModified))continue;files.push({file,url:URL.createObjectURL(file)});}byId('attachment-error').textContent=errors.join(' ');renderFiles();}
+function addFiles(incoming){const errors=[];for(const file of incoming){if(files.length>=3){errors.push('Puoi allegare al massimo 3 file.');break;}if(!/^(image|video)\//.test(file.type)){errors.push(file.name+': scegli una foto o un video.');continue;}if(file.size>2*1024*1024){errors.push(file.name+': il limite è 2 MB per file.');continue;}if(files.some(x=>x.file.name===file.name&&x.file.size===file.size&&x.file.lastModified===file.lastModified))continue;files.push({file,url:URL.createObjectURL(file)});}byId('attachment-error').textContent=errors.join(' ');renderFiles();}
 byId('attachments').onchange=e=>{addFiles(e.target.files);e.target.value='';};
 const drop=byId('dropzone');['dragenter','dragover'].forEach(event=>drop.addEventListener(event,e=>{e.preventDefault();drop.classList.add('dragover');}));['dragleave','drop'].forEach(event=>drop.addEventListener(event,e=>{e.preventDefault();drop.classList.remove('dragover');}));drop.addEventListener('drop',e=>addFiles(e.dataTransfer.files));
 function validContact(value){return !value||/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)||(/^[+\d\s().-]+$/.test(value)&&value.replace(/\D/g,'').length>=6&&value.replace(/\D/g,'').length<=15);}
@@ -26,3 +27,21 @@ byId('edit-report').onclick=()=>byId('review').close();byId('close-review').oncl
 
 window.addEventListener('beforeunload',()=>files.forEach(item=>URL.revokeObjectURL(item.url)));
 try{window.initReportingMap(code=>selectBuilding(code));changeSite('citta');const initial=new URLSearchParams(location.search).get('edificio');if(buildings.some(b=>b.code===initial))selectBuilding(initial,true);}catch(error){console.warn(error);byId('map-selection').textContent='Mappa non disponibile. Puoi scegliere sede ed edificio dal modulo.';changeSite('citta');}
+
+if(!window.PRIMAVERA_STATIC){
+ const notice=document.querySelector('.submit-row .notice');notice.textContent='La segnalazione sarà verificata prima della pubblicazione. Il contatto facoltativo sarà visibile solo agli amministratori.';
+ byId('attachments').accept='image/jpeg,image/png,image/gif,image/webp,video/mp4,video/quicktime,video/webm';
+ const confirm=document.createElement('button');confirm.type='button';confirm.className='btn';confirm.id='send-report';confirm.textContent='Invia segnalazione';
+ const feedback=document.createElement('p');feedback.setAttribute('role','status');feedback.setAttribute('aria-live','polite');feedback.style.whiteSpace='pre-wrap';
+ byId('review').querySelector('.notice').textContent='Controlla i dati, poi invia la segnalazione. Sarà visibile sul sito dopo la verifica dell’admin.';
+ byId('review').insertBefore(feedback,byId('review').querySelector('.review-actions'));byId('review').querySelector('.review-actions').append(confirm);
+ const trap=document.createElement('input');trap.type='text';trap.name='website';trap.tabIndex=-1;trap.autocomplete='off';trap.setAttribute('aria-hidden','true');trap.style.cssText='position:absolute;left:-10000px;width:1px;height:1px';form.append(trap);
+ confirm.onclick=async()=>{confirm.disabled=true;byId('edit-report').disabled=true;byId('close-review').disabled=true;feedback.textContent='Invio in corso…';
+ try{const data=new FormData();for(const [key,value] of Object.entries({submissionKey,code:building.value,floor:byId('floor').disabled?'':byId('floor').value,location:byId('location').value,category:byId('category').value,description:byId('description').value,urgency:form.elements.urgency.value,role:byId('role').value,contact:byId('contact').value,website:trap.value}))data.set(key,value);files.forEach(item=>data.append('attachments',item.file));
+ const response=await fetch('/api/reports',{method:'POST',body:data});const result=await response.json();if(!response.ok)throw Error(result.error||'Invio non riuscito. Riprova.');
+ feedback.textContent='Segnalazione ricevuta: '+result.id+'\nSarà pubblicata dopo la verifica dell’admin.';confirm.hidden=true;byId('edit-report').hidden=true;byId('close-review').textContent='Chiudi';byId('close-review').disabled=false;
+ files.forEach(item=>URL.revokeObjectURL(item.url));files=[];renderFiles();form.reset();changeSite('citta');submissionKey=crypto.randomUUID();
+ byId('review').addEventListener('close',()=>{confirm.hidden=false;confirm.disabled=false;byId('edit-report').hidden=false;byId('edit-report').disabled=false;feedback.textContent='';},{once:true});
+ }catch(error){feedback.textContent=error.message;confirm.disabled=false;byId('edit-report').disabled=false;byId('close-review').disabled=false;}
+ };
+}

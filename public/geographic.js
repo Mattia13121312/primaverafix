@@ -35,3 +35,11 @@ window.initReportOverview=function(){
  select.onchange=()=>{geo.setSite(select.value);draw();};return {update(reports,onReport){currentReports=reports;openReport=onReport;draw();},geo};
 };
 })();
+
+window.createReportPreview=function(id,code){
+ const node=document.getElementById(id),feature=[...CAMPUS_DATA.features,...(window.CAMPUS_PLACES?.features||[])].find(f=>f.properties.code===code);if(!node||!feature||!window.L)return null;
+ const map=L.map(node,{center:feature.properties.center,zoom:18,rotate:true,bearing:CAMPUS_SITES.find(s=>s.id===feature.properties.site)?.bearing||0,rotateControl:false,touchRotate:false,shiftKeyRotate:false,dragging:false,scrollWheelZoom:false,doubleClickZoom:false,boxZoom:false,keyboard:false,touchZoom:false,zoomControl:false});
+ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'}).addTo(map);
+ L.geoJSON(feature,{style:{color:'#ffbe82',weight:2,fillColor:feature.properties.kind==='lawn'?'#5caa4c':'#ff751f',fillOpacity:.5},pointToLayer:(f,ll)=>L.circleMarker(ll,{radius:9,color:'#ffbe82',fillColor:'#ff751f',fillOpacity:.8})}).addTo(map);
+ L.marker(feature.properties.center,{interactive:false,icon:L.divIcon({className:'map-pin',html:'<span class="red-beacon"></span>',iconSize:[42,42],iconAnchor:[21,21]})}).addTo(map);return map;
+};
