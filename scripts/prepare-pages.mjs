@@ -9,7 +9,7 @@ for(const filename of await readdir(output)){
  const file=path.join(output,filename);
  let source=await readFile(file,'utf8');
  if(filename.endsWith('.html')){
-  source=source.replaceAll('src="geographic.js"','src="geographic.js?v=20261107-sciarra-point"').replaceAll('src="campus-data.js"','src="campus-data.js?v=20261107-sciarra-point"');
+  source=source.replaceAll('src="geographic.js"','src="geographic.js?v=20261107-sciarra-point3"').replaceAll('src="campus-data.js"','src="campus-data.js?v=20261107-sciarra-point3"');
   source=source.replaceAll('href="/admin"','href="admin.html"');
   source=source.replace(/href="\/#([^\"]*)"/g,'href="./#$1"');
   source=source.replaceAll('href="/"','href="./"');
