@@ -8,7 +8,7 @@ Admin: https://primaverafix.primavera-sapienza.workers.dev/admin
 - Worker `primaverafix`, con asset statici preparati da `scripts/prepare-worker.mjs`.
 - Database D1 `primaverafix-db`, binding `DB` e migrazioni SQL in `drizzle/`.
 - Nessuna sottoscrizione R2 e nessun servizio a pagamento richiesto. Gli allegati sono conservati in D1 in blocchi base64, privati fino alla pubblicazione del relativo report.
-- Limiti applicativi: 3 file per invio, 2 MiB ciascuno, 150 MiB complessivi di file originali (circa 200 MiB codificati, oltre a metadati e indici). I file nel cestino occupano ancora spazio. A quota esaurita il server rifiuta nuovi allegati e invita a inviare senza file.
+- Limiti applicativi: 3 file per invio, 2 MiB ciascuno, 300 MiB complessivi di file originali (circa 400 MiB codificati, oltre a metadati e indici). I file nel cestino occupano ancora spazio. A quota esaurita il server rifiuta nuovi allegati e invita a inviare senza file.
 - Formati ammessi: JPG, PNG, GIF, WebP, MP4, MOV e WebM; firma iniziale controllata sul server. Non è un servizio di elaborazione o transcodifica video.
 
 ## Flusso
